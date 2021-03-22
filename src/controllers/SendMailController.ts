@@ -18,14 +18,6 @@ class SendMailController {
         const surveyExists = await surveyRepository.findOne({id: survey_id});
 
         const npsPath = resolve(__dirname, "..", "views", "emails", "npsMail.hbs");
-        const variables = {
-            name: userExists.name,
-            title: surveyExists.title,
-            description: surveyExists.description,
-            user_id: userExists.id,
-            link: process.env.URL_MAIL,
-        }
-        
 
         if(!userExists) {
             return res.status(400).json({error: "User doesn't exists"});
@@ -35,11 +27,19 @@ class SendMailController {
         }
 
         const surveyUserExists = await surveyUserRepository.findOne({
-            where: [{user_id: userExists.id}, {value: null}],
-            relations: ["users", "surveys"]
+            where: {user_id: userExists.id, value: null}
         });
 
+        const variables = {
+            name: userExists.name,
+            title: surveyExists.title,
+            description: surveyExists.description,
+            id: "",
+            link: process.env.URL_MAIL,
+        }
+        
         if(surveyUserExists){
+            variables.id = surveyUserExists.id;
             await sendMailService.execute(email, surveyExists.title, variables, npsPath);
             return res.status(200).json(surveyUserExists);
         }
@@ -49,6 +49,8 @@ class SendMailController {
             survey_id
         });
         await surveyUserRepository.save(surveyUser);
+        variables.id = surveyUser.id;
+
         await sendMailService.execute(email, surveyExists.title, variables, npsPath);
 
         return res.status(201).json(surveyUser);
