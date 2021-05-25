@@ -1,4 +1,4 @@
-# NLW4
+# NLW4 - Node JS
 Repositório destinado ao armazenamento de código produzido durante a Next Level Week - Edição 4.
 
 Para executar o projeto, basta executar o comando: 
